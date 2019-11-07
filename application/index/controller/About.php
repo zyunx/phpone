@@ -1,13 +1,14 @@
 <?php
+
+
 namespace app\index\controller;
 
-use app\index\common\controller\BaseController;
-use think\Controller;
 
-class Index extends BaseController
+use app\index\common\controller\BaseController;
+
+class About extends BaseController
 {
-    public function index()
-    {
+    public function index() {
         return $this->fetch();
     }
 }

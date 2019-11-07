@@ -1,0 +1,145 @@
+{extend name="common/base" /}
+
+{block name="style"}
+<style>
+
+</style>
+{/block}
+{block name="main"}
+<section class="content">
+    <div class="search-panel">
+        过滤：
+        <div class="layui-inline" style="width:400px">
+            <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+        </div>
+        <button class="layui-btn" data-type="reload">搜索</button>
+    </div>
+
+    <table id="dataTable" lay-filter="dataTable"></table>
+
+    <script type="text/html" id="toolbar">
+        <div class="layui-btn-container">
+            <button class="layui-btn layui-btn-sm" lay-event="add">新建</button>
+        </div>
+    </script>
+
+    <script type="text/html" id="tool">
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+
+    <script type="text/html" id="stateTpl">
+        <input type="checkbox" name="state" data-id="{{d.id}}" value="{{d.state}}" lay-skin="switch" lay-filter="toggle" {{ d.state == 1 ? 'checked' : '' }}>
+    </script>
+
+</section>
+{/block}
+
+{block name="script"}
+<script>
+    var table = layui.table,
+        form = layui.form,
+        $ = layui.$;
+
+    table.render({
+        elem: '#dataTable'
+        ,url:'{:url("conf/listPaged")}'
+        ,title: '用户表'
+        ,toolbar: '#toolbar' //开启头部工具栏，并为其绑定左侧模板
+        ,cols: [[
+            {field:'key',title: '名', edit: 'text'}
+            ,{field:'value', title: '值', edit: 'text'}
+            ,{field:'state', title:'状态', templet: '#stateTpl', width: 80, unresize: true}
+            ,{fixed: 'right', title:'操作', toolbar: '#tool', width:80, unresize: true}
+        ]]
+    });
+
+    //监听单元格编辑
+    table.on('edit(dataTable)', function(obj){
+        var value = obj.value //得到修改后的值
+            ,data = obj.data //得到所在行所有键值
+            ,field = obj.field; //得到字段
+
+        var editData = {};
+        editData['id'] = data['id'];
+        editData[field] = value;
+
+        $.ajax({
+            url: "{:url('conf/edit')}",
+            method: 'POST',
+            data: editData,
+            success: function (res) {
+                if (res.code == 1) {
+                } else {
+                    layer.alert(res.msg ? res.msg : '操作失败', function(index){
+                        layer.close(index);
+                        location.href = res.url;
+                    });
+                }
+            }
+        });
+
+    });
+
+    //头工具栏事件
+    table.on('toolbar(dataTable)', function(obj){
+        var checkStatus = table.checkStatus(obj.config.id);
+        switch(obj.event){
+            case 'add':
+                location.href = '{:url("conf/add")}';
+                break;
+            default:
+
+        };
+    });
+
+    //监听工具条
+    table.on('tool(dataTable)', function(obj){
+        var row = obj.data;
+        if(obj.event === 'del'){
+            layer.confirm('真的删除行么', function(index){
+                $.ajax({
+                    url: "{:url('conf/del')}",
+                    method: 'POST',
+                    data: row,
+                    success: function (res) {
+                        if (res.code == 1) {
+                            obj.del();
+                            layer.close(index);
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    }
+                });
+            });
+        }
+    });
+
+    form.on('switch(toggle)', function(obj){
+        $elem = $(obj.elem);
+        var id = $elem.data('id');
+        var origValue = $elem.val();
+        $.ajax({
+            url: "{:url('conf/toggle')}",
+            method: 'POST',
+            data: {
+                id
+            },
+            success: function (res) {
+                console.log(res);
+                if (res.code == 1) {
+
+                } else {
+                    layer.alert(res.msg ? res.msg : '操作失败', function(index){
+                        //do something
+                        layer.close(index);
+                        location.href = res.url;
+                    });
+                }
+            }
+        });
+    });
+
+
+
+</script>
+{/block}
