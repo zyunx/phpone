@@ -5,3 +5,7 @@
 thinkphp
 .env
 .DS_Store
+
+config/
+phinx.yml
+
