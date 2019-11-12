@@ -12,16 +12,9 @@ class Conf extends \app\index\common\controller\BaseController
     }
 
     public function listPaged() {
-        $list = model('Conf')->select();
+        $key = input('key', '');
 
-        $count = count($list);
-        return json([
-            'code' => 0,
-            'msg' => '',
-            'count' => $count,
-            'data' => $list,
-        ]);
-        //return $this->result($data);
+        return $this->resultLayuiPrevNextPagedList(model('Conf')->where('key', 'like', "%$key%"));
     }
 
     public function add() {

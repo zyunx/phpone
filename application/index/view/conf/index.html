@@ -7,24 +7,23 @@
 {/block}
 {block name="main"}
 <section class="content">
-    <div class="search-panel">
-        过滤：
+    <div id="searchPanel">
         <div class="layui-inline" style="width:400px">
-            <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+            <input id="searchPanelKey" class="layui-input" name="key" autocomplete="off">
         </div>
-        <button class="layui-btn" data-type="reload">搜索</button>
+        <button class="layui-btn" data-type="reload"><i class="layui-icon layui-icon-search"></i></button>
     </div>
 
     <table id="dataTable" lay-filter="dataTable"></table>
 
     <script type="text/html" id="toolbar">
         <div class="layui-btn-container">
-            <button class="layui-btn layui-btn-sm" lay-event="add">新建</button>
+            <button class="layui-btn layui-btn-sm" lay-event="add"><i class="layui-icon layui-icon-add-1"></i></button>
         </div>
     </script>
 
     <script type="text/html" id="tool">
-        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i></a>
     </script>
 
     <script type="text/html" id="stateTpl">
@@ -42,9 +41,16 @@
 
     table.render({
         elem: '#dataTable'
+        ,id: 'dataTable'
         ,url:'{:url("conf/listPaged")}'
         ,title: '用户表'
         ,toolbar: '#toolbar' //开启头部工具栏，并为其绑定左侧模板
+        ,page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+            layout: ['limit', 'prev', 'page', 'next'] //自定义分页布局
+            ,groups: 1 //只显示 1 个连续页码
+            ,first: false //不显示首页
+            ,last: false //不显示尾页
+        }
         ,cols: [[
             {field:'key',title: '名', edit: 'text'}
             ,{field:'value', title: '值', edit: 'text'}
@@ -139,7 +145,34 @@
         });
     });
 
+    var active = {
+        reload: function(){
+            var searchPanelKey = $('#searchPanelKey');
 
+            //执行重载
+            table.reload('dataTable', {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                ,where: {
+                    key: searchPanelKey.val()
+                }
+            }, 'data');
+        }
+    };
+
+    $('#searchPanel .layui-btn').on('click', function(){
+        var type = $(this).data('type');
+        active[type] ? active[type].call(this) : '';
+    });
+
+    $('#searchPanelKey').on('keydown',function(event){
+        var type = 'reload';
+        if(event.keyCode == "13")
+        {
+            active[type] ? active[type].call(this) : '';
+        }
+    });
 
 </script>
 {/block}

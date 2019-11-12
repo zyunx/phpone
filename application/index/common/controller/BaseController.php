@@ -3,9 +3,10 @@
 
 namespace app\index\common\controller;
 
+use app\common\controller\LayuiController;
 use \think\Controller;
 
-class BaseController extends Controller
+class BaseController extends LayuiController
 {
     public function initialize()
     {
