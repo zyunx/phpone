@@ -1,0 +1,75 @@
+{extend name="common/base" /}
+
+{block name="main"}
+<div class="layui-container">
+
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>支付演示</legend>
+    </fieldset>
+
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">金额</label>
+            <div class="layui-input-block">
+                <input type="text" name="amount" lay-verify="amount" autocomplete="off" placeholder="请输入金额" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <input type="text" name="remark" placeholder="备注" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="submit" class="layui-btn" lay-submit="" lay-filter="pay">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+{/block}
+
+
+{block name="script"}
+<script>
+    ;(function() {
+        var form = layui.form;
+        var layer = layui.layer,
+            $ = layui.jquery;
+        //自定义验证规则
+        form.verify({
+            amount: [
+                /^(0\.\d{1,2}|[1-9]\d*(\.\d{1,2})?)$/
+                ,'金额格式不对'
+            ]
+        });
+
+        //监听提交
+        form.on('submit(pay)', function(data){
+            $.ajax({
+                url: "{:url('payment/createPay')}",
+                method: 'POST',
+                data: data.field,
+                success: function (res) {
+                    if (res.code == 1) {
+                        layer.alert(res.msg ? res.msg : '操作成功', function(index){
+                            layer.close(index);
+                            location.href = res.url;
+                        });
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            });
+
+            return false;
+        });
+
+
+    })();
+
+
+</script>
+{/block}
